@@ -80,7 +80,327 @@
       background: rgba(255,255,255,0.03);
       border-bottom: 1px solid var(--gray);
     }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sergio@server</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:      #00ff88;
+      --green-dim:  #00cc6a;
+      --green-glow: rgba(0, 255, 136, 0.12);
+      --bg:         #080c0a;
+      --bg2:        #0d1410;
+      --bg3:        #111a14;
+      --border:     #1e2e22;
+      --text-dim:   #4a6a55;
+      --text-mid:   #6a9a75;
+    }
 
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--green);
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity: 0.5;
+      pointer-events: none;
+      animation: gridPulse 8s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.5; }
+      50%       { opacity: 0.25; }
+    }
+
+    /* Radial vignette */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 30%, var(--bg) 80%);
+      pointer-events: none;
+    }
+
+    /* Terminal window */
+    .terminal {
+      width: 100%;
+      max-width: 660px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow:
+        0 0 0 1px rgba(0,255,136,0.04),
+        0 0 60px rgba(0,255,136,0.07),
+        0 40px 100px rgba(0,0,0,0.7);
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+      animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0)   scale(1); }
+    }
+
+    /* Title bar */
+    .titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 16px;
+      background: rgba(255,255,255,0.025);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .dots { display: flex; gap: 6px; }
+    .dot  { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+    .dot.r { background: #ff5f57; }
+    .dot.y { background: #ffbd2e; }
+    .dot.g { background: #28c840; }
+
+    .tb-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    /* Content */
+    .content {
+      padding: clamp(20px, 5vw, 36px) clamp(18px, 5vw, 36px) clamp(24px, 5vw, 36px);
+    }
+
+    /* Big heading */
+    .hero {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 8vw, 2.6rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      text-shadow: 0 0 50px var(--green-glow);
+      opacity: 0;
+      animation: lineIn 0.4s ease 0.1s forwards;
+    }
+    .hero span { color: var(--green); }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin-bottom: 18px;
+      opacity: 0;
+      animation: lineIn 0.3s ease 0.3s forwards;
+    }
+
+    /* Terminal lines */
+    .line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 10px;
+      margin-bottom: 4px;
+      font-size: clamp(0.72rem, 2.5vw, 0.84rem);
+      line-height: 1.6;
+      opacity: 0;
+      animation: lineIn 0.3s ease forwards;
+    }
+
+    .line:nth-child(1)  { animation-delay: 0.45s; }
+    .line:nth-child(2)  { animation-delay: 0.65s; }
+    .line:nth-child(3)  { animation-delay: 0.85s; }
+    .line:nth-child(4)  { animation-delay: 1.05s; }
+    .line:nth-child(5)  { animation-delay: 1.25s; }
+    .line:nth-child(6)  { animation-delay: 1.45s; }
+    .line:nth-child(7)  { animation-delay: 1.65s; }
+    .line:nth-child(8)  { animation-delay: 1.85s; }
+    .line:nth-child(9)  { animation-delay: 2.05s; }
+    .line:nth-child(10) { animation-delay: 2.25s; }
+    .line:nth-child(11) { animation-delay: 2.45s; }
+
+    @keyframes lineIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .prompt       { color: var(--green-dim); white-space: nowrap; user-select: none; }
+    .prompt em    { color: var(--text-mid); font-style: normal; }
+    .cmd          { color: #e8f8ee; }
+    .out          { color: var(--text-mid); }
+    .ok           { color: var(--green); font-weight: 700; }
+    .spacer       { margin-top: 10px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(0,255,136,0.07);
+      border: 1px solid rgba(0,255,136,0.18);
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 0.75em;
+      color: var(--green);
+      vertical-align: middle;
+    }
+
+    a {
+      color: var(--green);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0,255,136,0.25);
+      transition: color 0.15s, border-color 0.15s;
+    }
+    a:hover, a:focus {
+      color: #fff;
+      border-color: rgba(255,255,255,0.4);
+      outline: none;
+    }
+
+    /* Blinking cursor */
+    .cursor {
+      display: inline-block;
+      width: 7px;
+      height: 1em;
+      background: var(--green);
+      vertical-align: text-bottom;
+      margin-left: 2px;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* Scanlines */
+    .terminal::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.04) 2px,
+        rgba(0,0,0,0.04) 4px
+      );
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      .terminal { border-radius: 10px; }
+      .prompt em { display: none; }
+      .tb-title { font-size: 0.65rem; }
+    }
+
+    @media (max-width: 360px) {
+      body { padding: 10px; }
+      .content { padding: 16px 14px 20px; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal">
+
+    <div class="titlebar">
+      <div class="dots">
+        <div class="dot r"></div>
+        <div class="dot y"></div>
+        <div class="dot g"></div>
+      </div>
+      <span class="tb-title">sergio@server — bash</span>
+    </div>
+
+    <div class="content">
+
+      <div class="hero"><span>sergio</span>@server<br>~/ home</div>
+      <hr class="divider">
+
+      <div class="line">
+        <span class="prompt">sergio<em>@server</em>:~$</span>
+        <span class="cmd">uptime</span>
+      </div>
+      <div class="line">
+        <span class="out">servidor casero &nbsp;<span class="badge">🟢 online</span></span>
+      </div>
+
+      <div class="line spacer">
+        <span class="prompt">sergio<em>@server</em>:~$</span>
+        <span class="cmd">docker ps --format "{{.Image}} {{.Status}}"</span>
+      </div>
+      <div class="line">
+        <span class="out">nginx:latest &nbsp;<span class="ok">UP</span> &nbsp;· Docker + Nginx</span>
+      </div>
+
+      <div class="line spacer">
+        <span class="prompt">sergio<em>@server</em>:~$</span>
+        <span class="cmd">systemctl status webhook</span>
+      </div>
+      <div class="line">
+        <span class="out">webhook.service &nbsp;<span class="ok">● active (running)</span></span>
+      </div>
+
+      <div class="line spacer">
+        <span class="prompt">sergio<em>@server</em>:~$</span>
+        <span class="cmd">tail -1 ~/deploy.log</span>
+      </div>
+      <div class="line">
+        <span class="out">CI/CD via GitHub Webhook &nbsp;<span class="ok">✓ activo</span></span>
+      </div>
+
+      <div class="line spacer">
+        <span class="prompt">sergio<em>@server</em>:~$</span>
+        <span class="cmd">cat links.txt</span>
+      </div>
+      <div class="line">
+        <span class="out">→ &nbsp;<a href="https://github.com/sergioglezz/EjemploWeb" target="_blank" rel="noopener">github.com/sergioglezz/EjemploWeb</a></span>
+      </div>
+
+      <div class="line spacer">
+        <span class="prompt">sergio<em>@server</em>:~$</span>
+        <span class="cursor"></span>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
     .dot { width: 12px; height: 12px; border-radius: 50%; }
     .dot.red    { background: #ff5f57; }
     .dot.yellow { background: #ffbd2e; }
