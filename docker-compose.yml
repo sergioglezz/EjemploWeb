@@ -1,9 +1,9 @@
 services:
-  nginx:
-    image: nginx:latest
-    container_name: ejemploweb
-    ports:
-      - "8080:80"
+  web:
+    image: nginx:alpine
     volumes:
-      - ./:/usr/share/nginx/html:ro
+      - ./html:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
     restart: unless-stopped
